@@ -1,13 +1,12 @@
 package com.webeye.cleantools.task;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.os.Environment;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
 
-import com.webeye.cleantools.dao.AppCache;
-import com.webeye.cleantools.dao.AppCacheDAO;
+import com.webeye.cleantools.dao.DefaultCache;
+import com.webeye.cleantools.dao.DefaultCacheDAO;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,24 +18,23 @@ import java.util.regex.Pattern;
 /**
  * Created by yanni on 15/4/15.
  */
-public class AppCacheCleanTask extends CleanTask {
+public class DefaultCacheCleanTask extends CleanTask {
 
-    private static final String TAG = AppCacheCleanTask.class.getSimpleName();
-    private static final String SDCARD_PATH = Environment.getExternalStorageDirectory().getPath();
-
+    private static final String TAG = DefaultCacheCleanTask.class.getSimpleName();
+    private static final String SDCARD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     private Context mContext;
-    private AppCacheDAO mAppCacheDAO;
+    private DefaultCacheDAO mDefaultCacheDAO;
     private TaskCallback mCallback;
 
-    private List<AppCache> mAppCaches = new ArrayList<AppCache>();
+    private List<DefaultCache> mDefaultCaches = new ArrayList<DefaultCache>();
 
     private HashMap<String, Long> mCounter = new HashMap<String, Long>();
 
-    public AppCacheCleanTask(Context context, TaskCallback callback) {
+    public DefaultCacheCleanTask(Context context, TaskCallback callback) {
         super();
         mContext = context;
         mCallback = callback;
-        mAppCacheDAO = new AppCacheDAO(mContext);
+        mDefaultCacheDAO = new DefaultCacheDAO(mContext);
     }
 
     @Override
@@ -47,21 +45,15 @@ public class AppCacheCleanTask extends CleanTask {
         }
 
         if (params[0] == TASK_SCAN) {
-            List<PackageInfo> installedApp = mContext.getPackageManager().getInstalledPackages(0);
-            List<String> pkgNames = new ArrayList<String>();
-            for (PackageInfo packageInfo : installedApp) {
-                pkgNames.add(packageInfo.packageName);
-            }
-            mAppCaches.addAll(mAppCacheDAO.queryCacheByPkgName(
-                    pkgNames.toArray(new String[installedApp.size()])));
+            mDefaultCaches.addAll(mDefaultCacheDAO.queryDefaultCache());
             /*for (Cache cache : mAppCaches) {
                 cache.dumpInfo();
             }*/
 
             scanCache();
         } else if (params[0] == TASK_CLEAN) {
-            for (AppCache appCache : mAppCaches) {
-                cleanCache(appCache);
+            for (DefaultCache cache : mDefaultCaches) {
+                cleanCache(cache);
             }
         } else {
             throw new AndroidRuntimeException("Unknown task step, please check the definition");
@@ -87,41 +79,33 @@ public class AppCacheCleanTask extends CleanTask {
         }
     }
 
-    public String getRegular(String subDir) {
-        String regular = subDir.substring(1);
-        regular = regular.substring(0, regular.indexOf("/"));
-        return regular;
-    }
-
     public void scanCache() {
-        for (AppCache appCache : mAppCaches) {
-            String path = SDCARD_PATH + appCache.getDir();
+        for (DefaultCache defaultCache : mDefaultCaches) {
+            String path = SDCARD_PATH + defaultCache.getDir();
             File rootDir = new File(path);
             if (rootDir.exists() && rootDir.isDirectory()) {
                 String[] subDirs = rootDir.list();
                 for (String dir : subDirs) {
-
-                    if (appCache.isRegular()) {
-                        String regular = getRegular(appCache.getSubDir());
-                        Pattern pattern = Pattern.compile(regular);
+                    if (defaultCache.isRegular()) {
+                        Pattern pattern = Pattern.compile(defaultCache.getWildcards());
                         Matcher matcher = pattern.matcher(dir);
                         if (matcher.find()) {
-                            String target = path + appCache.getSubDir().replace(regular, dir);
-                            appCache.addDirPath(target);
+                            String target = path + dir;
+                            defaultCache.addDirPath(target);
                         }
                     }
                 }
-                cacheSizeCounter(appCache);
+                cacheSizeCounter(defaultCache);
             }
         }
     }
 
-    public void cleanCache(AppCache appCache) {
-        for (String path : appCache.getTargetDir()) {
+    public void cleanCache(DefaultCache cache) {
+        for (String path : cache.getTargetDir()) {
             // 计算目标目录大小
             File cleanDirectory = new File(path);
             // 按策略删除数据
-            if (appCache.isRemoveDir()) {
+            if (cache.isRemoveDir()) {
                 //cleanDirectory.delete();
             } else {
                 File[] files = cleanDirectory.listFiles();
@@ -134,14 +118,15 @@ public class AppCacheCleanTask extends CleanTask {
         }
     }
 
-    public void cacheSizeCounter(AppCache appCache) {
-        for (String path : appCache.getTargetDir()) {
+    public void cacheSizeCounter(DefaultCache appCache) {
+        List<String> dirs = appCache.getTargetDir();
+        for (String path : dirs) {
             // 计算目标目录大小
             File cleanDirectory = new File(path);
             long total = 0;
             long current = 0;
-            if (mCounter.containsKey(appCache.getPackageName())) {
-                total = mCounter.get(appCache.getPackageName());
+            if (mCounter.containsKey(path)) {
+                total = mCounter.get(path);
             }
             try {
                 current = getFileSize(cleanDirectory);
@@ -151,19 +136,23 @@ public class AppCacheCleanTask extends CleanTask {
             total += current;
             Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
                     current + ", total=" + total);
-            mCounter.put(appCache.getPackageName(), total);
+            mCounter.put(path, total);
         }
     }
 
     private long getFileSize(File f) throws Exception {
         long size = 0;
-        File flist[] = f.listFiles();
-        for (int i = 0; i < flist.length; i++) {
-            if (flist[i].isDirectory()) {
-                size = size + getFileSize(flist[i]);
-            } else {
-                size = size + flist[i].length();
+        if (f.isDirectory()) {
+            File flist[] = f.listFiles();
+            for (int i = 0; i < flist.length; i++) {
+                if (flist[i].isDirectory()) {
+                    size += getFileSize(flist[i]);
+                } else {
+                    size += flist[i].length();
+                }
             }
+        } else {
+            size = size + f.length();
         }
         return size;
     }

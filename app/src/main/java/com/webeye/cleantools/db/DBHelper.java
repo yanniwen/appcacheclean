@@ -1,9 +1,8 @@
-package com.webeye.cleantools.dao;
+package com.webeye.cleantools.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * Created by yanni on 15/4/16.
@@ -30,8 +29,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d("wenyan", "DBHelper oncreate");
-        db.execSQL(SQL.CREATE_TABLE_APPCACHE);
+        db.execSQL(SQL.CREATE_TABLE_APP_CACHE);
+        db.execSQL(SQL.CREATE_TABLE_DEFAULT_CACHE);
 
         // 若不是第一个版本安装，直接执行数据库升级
         onUpgrade(db, FIRST_DATABASE_VERSION, DATABASE_VERSION);

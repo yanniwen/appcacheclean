@@ -6,21 +6,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.webeye.cleantools.task.AppCacheCleanTask;
+import com.webeye.cleantools.task.CleanTask;
+import com.webeye.cleantools.task.DefaultCacheCleanTask;
+import com.webeye.cleantools.task.TaskCallback;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
 
-public class ApplicationCache extends ActionBarActivity implements AppCleanCallback {
+public class ApplicationCache extends ActionBarActivity implements TaskCallback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_application_cache);
 
-        AppCacheCleanTask agent = new AppCacheCleanTask(this, this);
-        agent.execute(0);
+        DefaultCacheCleanTask agent = new DefaultCacheCleanTask(this, this);
+        agent.execute(CleanTask.TASK_SCAN);
     }
 
 
@@ -47,10 +49,13 @@ public class ApplicationCache extends ActionBarActivity implements AppCleanCallb
     }
 
     @Override
-    public void onScanResult(HashMap<String, Long> mPackageSize) {
+    public void onScanResult(HashMap<String, Long> packageSize) {
         TextView report = (TextView) findViewById(R.id.txt_status);
-        long pkgSize = mPackageSize.get("com.tencent.mm");
-        report.setText("size: " + formatFileSize(pkgSize));
+        String total = "";
+        for (String key : packageSize.keySet()) {
+            total += key + ": " + formatFileSize(packageSize.get(key)) + "\n";
+        }
+        report.setText("result:\n " + total);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.webeye.cleantools.dao;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yanni on 15/4/16.
  */
-public class Cache {
+public class AppCache {
 
     private String mItemName = "";
     private String mPackageName = "";
@@ -13,6 +14,7 @@ public class Cache {
     private String mSubDir = "";
     private boolean mShouldRemoveDir = false;
     private boolean mIsRegular = true;
+    private List<String> mTargetDir = new ArrayList<String>();
 
     public String getItemName() {
         return mItemName;
@@ -62,7 +64,19 @@ public class Cache {
         this.mIsRegular = false;
     }
 
-    public void dumpInfo() {
-        Log.d("Cache", "pkg=" + mPackageName + ", dir=" + mDir + ", subdir=" + mSubDir);
+    public List<String> getTargetDir() {
+        return mTargetDir;
+    }
+
+    public void addDirPath(String path) {
+        mTargetDir.add(path);
+    }
+
+    public void cleanTargetDir() {
+        mTargetDir.clear();
+    }
+
+    public void removeDirPath(String path) {
+        mTargetDir.remove(path);
     }
 }
