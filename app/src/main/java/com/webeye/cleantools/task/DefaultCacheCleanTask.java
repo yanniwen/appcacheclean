@@ -79,16 +79,41 @@ public class DefaultCacheCleanTask extends CleanTask {
         }
     }
 
+    public String getRegular(String subDir) {
+        return subDir.substring(1);
+    }
+
     public void scanCache() {
         for (DefaultCache defaultCache : mDefaultCaches) {
             String path = SDCARD_PATH + defaultCache.getDir();
             File rootDir = new File(path);
             if (rootDir.exists() && rootDir.isDirectory()) {
                 String[] subDirs = rootDir.list();
-                for (String dir : subDirs) {
-                    if (defaultCache.isRegular()) {
+
+                if (defaultCache.isRegular()) {
+                    for (String subDir : subDirs) {
+                        String regular = getRegular(defaultCache.getSubDir());
+                        Pattern pattern = Pattern.compile(regular);
+                        Matcher matcher = pattern.matcher(subDir);
+                        if (matcher.find()) {
+                            File fSubDir = new File(path + "/" + subDir);
+                            if (fSubDir.isDirectory()) {
+                                String[] dSubDirs = fSubDir.list();
+                                for (String subSubDir : dSubDirs) {
+                                    pattern = Pattern.compile(defaultCache.getWildcards());
+                                    matcher = pattern.matcher(subSubDir.toLowerCase());
+                                    if (matcher.find()) {
+                                        String target = path + "/" + subDir + "/" + subSubDir;
+                                        defaultCache.addDirPath(target);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (String dir : subDirs) {
                         Pattern pattern = Pattern.compile(defaultCache.getWildcards());
-                        Matcher matcher = pattern.matcher(dir);
+                        Matcher matcher = pattern.matcher(dir.toLowerCase());
                         if (matcher.find()) {
                             String target = path + dir;
                             defaultCache.addDirPath(target);
@@ -133,10 +158,12 @@ public class DefaultCacheCleanTask extends CleanTask {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            total += current;
-            Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
-                    current + ", total=" + total);
-            mCounter.put(path, total);
+            if (current > 0) {
+                total += current;
+                Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
+                        current + ", total=" + total);
+                mCounter.put(path, total);
+            }
         }
     }
 

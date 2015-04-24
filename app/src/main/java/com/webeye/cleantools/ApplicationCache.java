@@ -6,8 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.webeye.cleantools.task.AppCacheCleanTask;
 import com.webeye.cleantools.task.CleanTask;
+import com.webeye.cleantools.task.DefaultCacheCleanTask;
 import com.webeye.cleantools.task.TaskCallback;
 
 import java.text.DecimalFormat;
@@ -21,7 +21,7 @@ public class ApplicationCache extends ActionBarActivity implements TaskCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_application_cache);
 
-        AppCacheCleanTask agent = new AppCacheCleanTask(this, this);
+        DefaultCacheCleanTask agent = new DefaultCacheCleanTask(this, this);
         agent.execute(CleanTask.TASK_SCAN);
     }
 

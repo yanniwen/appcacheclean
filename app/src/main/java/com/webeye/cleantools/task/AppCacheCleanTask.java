@@ -96,12 +96,13 @@ public class AppCacheCleanTask extends CleanTask {
     public void scanCache() {
         for (AppCache appCache : mAppCaches) {
             //Log.d(TAG, "package=" + appCache.getPackageName());
+            appCache.cleanTargetDir();
             String path = SDCARD_PATH + appCache.getDir();
             File rootDir = new File(path);
             if (rootDir.exists() && rootDir.isDirectory()) {
                 String[] subDirs = rootDir.list();
                 for (String dir : subDirs) {
-                    String target = path + appCache.getSubDir();
+                    String target = null;
                     if (appCache.isRegular()) {
                         String regular = getRegular(appCache.getSubDir());
                         Pattern pattern = Pattern.compile(regular);
@@ -110,8 +111,13 @@ public class AppCacheCleanTask extends CleanTask {
                             target = path + appCache.getSubDir().replace(regular, dir);
                             appCache.addDirPath(target);
                         }
+                    } else {
+                        int index = appCache.getSubDir().lastIndexOf("/");
+                        if (appCache.getSubDir().substring(index + 1).equals(dir)) {
+                            target = path + appCache.getSubDir();
+                            appCache.addDirPath(target);
+                        }
                     }
-                    appCache.addDirPath(target);
                 }
                 cacheSizeCounter(appCache);
             }
@@ -150,10 +156,12 @@ public class AppCacheCleanTask extends CleanTask {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            total += current;
-            Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
-                    current + ", total=" + total);
-            mCounter.put(appCache.getPackageName(), total);
+            if (current > 0) {
+                total += current;
+                Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
+                        current + ", total=" + total);
+                mCounter.put(appCache.getPackageName(), total);
+            }
         }
     }
 
