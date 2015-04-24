@@ -95,21 +95,23 @@ public class AppCacheCleanTask extends CleanTask {
 
     public void scanCache() {
         for (AppCache appCache : mAppCaches) {
+            //Log.d(TAG, "package=" + appCache.getPackageName());
             String path = SDCARD_PATH + appCache.getDir();
             File rootDir = new File(path);
             if (rootDir.exists() && rootDir.isDirectory()) {
                 String[] subDirs = rootDir.list();
                 for (String dir : subDirs) {
-
+                    String target = path + appCache.getSubDir();
                     if (appCache.isRegular()) {
                         String regular = getRegular(appCache.getSubDir());
                         Pattern pattern = Pattern.compile(regular);
                         Matcher matcher = pattern.matcher(dir);
                         if (matcher.find()) {
-                            String target = path + appCache.getSubDir().replace(regular, dir);
+                            target = path + appCache.getSubDir().replace(regular, dir);
                             appCache.addDirPath(target);
                         }
                     }
+                    appCache.addDirPath(target);
                 }
                 cacheSizeCounter(appCache);
             }

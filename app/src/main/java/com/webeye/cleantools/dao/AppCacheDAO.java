@@ -86,7 +86,6 @@ public class AppCacheDAO {
             appCache.setPackageName("com.tencent.mm");
             appCache.setDir("/tencent/MicroMsg");
             appCache.setSubDir("/[0-9a-zA-Z]{32}/avatar");
-            appCache.flagRemoveDir();
             insert(appCache);
 
             appCache = new AppCache();
@@ -138,6 +137,94 @@ public class AppCacheDAO {
             appCache.setPackageName("com.tencent.mm");
             appCache.setDir("/tencent/MicroMsg");
             appCache.setSubDir("/xlog");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_AppInfos");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.appinfos");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Log");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.log");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Interest");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.interest");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Portrainew");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.portrainew");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Prenew");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.prenew");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Snggamemsg");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.snggamemsg");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Pic");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/.weibo_pic_new");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Download");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/download");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_Page");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/page");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_SmallPage");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/small_page");
+            appCache.flagNoRegular();
+            insert(appCache);
+
+            appCache = new AppCache();
+            appCache.setItemName("Weibo_ThemeData");
+            appCache.setPackageName("com.sina.weibo");
+            appCache.setDir("/sina/weibo");
+            appCache.setSubDir("/theme_data");
             appCache.flagNoRegular();
             insert(appCache);
         }
