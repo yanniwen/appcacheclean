@@ -150,8 +150,9 @@ public class DefaultCacheCleanTask extends CleanTask {
             File cleanDirectory = new File(path);
             long total = 0;
             long current = 0;
-            if (mCounter.containsKey(path)) {
-                total = mCounter.get(path);
+            String key = path.substring(0, path.lastIndexOf("/"));
+            if (mCounter.containsKey(key)) {
+                total = mCounter.get(key);
             }
             try {
                 current = getFileSize(cleanDirectory);
@@ -162,7 +163,7 @@ public class DefaultCacheCleanTask extends CleanTask {
                 total += current;
                 Log.d(TAG, "cacheSizeCounter: path=" + path + ", current=" +
                         current + ", total=" + total);
-                mCounter.put(path, total);
+                mCounter.put(key, total);
             }
         }
     }
